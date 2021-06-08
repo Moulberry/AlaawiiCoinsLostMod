@@ -52,6 +52,7 @@ public class AlaawiiCoinsLost {
         ClientCommandHandler.instance.registerCommand(removeCoinLostCommand);
         ClientCommandHandler.instance.registerCommand(addCoinLostCommand);
         ClientCommandHandler.instance.registerCommand(moveOverlayCommand);
+        ClientCommandHandler.instance.registerCommand(toggleVisibilityCommand);
 
         //load config
         loadConfig();
@@ -145,6 +146,18 @@ public class AlaawiiCoinsLost {
         }
     });
 
+    private SimpleCommand toggleVisibilityCommand = new SimpleCommand("acltogglevisibility", new SimpleCommand.ProcessCommandRunnable() {
+        @Override
+        public void processCommand(ICommandSender sender, String[] args) {
+            config.hidden = !config.hidden;
+            if(config.hidden) {
+                sender.addChatMessage(new ChatComponentText("\u00a7eOverlay is now: \u00a7aVisible"));
+            } else {
+                sender.addChatMessage(new ChatComponentText("\u00a7eOverlay is now: \u00a7cHidden"));
+            }
+        }
+    });
+
     private GuiScreen openGui = null;
 
     private SimpleCommand moveOverlayCommand = new SimpleCommand("aclmove", new SimpleCommand.ProcessCommandRunnable() {
@@ -232,7 +245,7 @@ public class AlaawiiCoinsLost {
 
     @SubscribeEvent
     public void onScreenRender(RenderGameOverlayEvent.Post event) {
-        if(event.type == RenderGameOverlayEvent.ElementType.ALL) {
+        if(!config.hidden && event.type == RenderGameOverlayEvent.ElementType.ALL) {
             ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
 
             List<String> strings = getCoinsLostStrings();

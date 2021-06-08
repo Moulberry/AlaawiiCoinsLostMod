@@ -6,6 +6,7 @@ public class Config {
     public int coinsLost = 0;
     public float coinLostRatio = 100;
     public boolean counterActive = true;
+    public boolean hidden = false;
     public int totalDamageTaken = 0;
     public int totalCoinsLost = 0;
 

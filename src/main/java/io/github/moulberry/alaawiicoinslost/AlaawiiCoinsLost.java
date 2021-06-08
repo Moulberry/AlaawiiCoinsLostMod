@@ -64,7 +64,8 @@ public class AlaawiiCoinsLost {
         @Override
         public void processCommand(ICommandSender sender, String[] args) {
             if(args.length != 1 || !args[0].equalsIgnoreCase("yes")) {
-                sender.addChatMessage(new ChatComponentText("\u00a7cAre you sure? This also resets the totals to 0. If you want to just reset the coins lost, use /aclsetcoinslost 0"));
+                sender.addChatMessage(new ChatComponentText("\u00a7cAre you sure? This also resets the totals to 0. " +
+                        "If you want to just reset the coins lost, use /aclsetcoinslost 0"));
                 sender.addChatMessage(new ChatComponentText("\u00a7aIf you are sure, use \"/aclreset yes\""));
                 return;
             }
@@ -150,7 +151,7 @@ public class AlaawiiCoinsLost {
         @Override
         public void processCommand(ICommandSender sender, String[] args) {
             config.hidden = !config.hidden;
-            if(config.hidden) {
+            if(!config.hidden) {
                 sender.addChatMessage(new ChatComponentText("\u00a7eOverlay is now: \u00a7aVisible"));
             } else {
                 sender.addChatMessage(new ChatComponentText("\u00a7eOverlay is now: \u00a7cHidden"));

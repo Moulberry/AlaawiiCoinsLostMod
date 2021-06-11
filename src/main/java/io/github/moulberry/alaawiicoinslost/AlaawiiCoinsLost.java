@@ -14,6 +14,7 @@ import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -37,6 +38,8 @@ public class AlaawiiCoinsLost {
 
     private Config config;
     private File configFile;
+
+    private long worldSwitchTime = 0;
 
     @Mod.EventHandler
     public void onInitialize(FMLPreInitializationEvent event) {
@@ -194,11 +197,19 @@ public class AlaawiiCoinsLost {
     }
 
     public List<String> getCoinsLostStrings() {
-        return Lists.newArrayList("\u00a76Coins lost: \u00a7l" + format.format(config.coinsLost),
-                "\u00a76Total coins lost: \u00a7l" + format.format(config.totalCoinsLost),
+        return Lists.newArrayList("\u00a76Coins lost: \u00a7l" + formatFloat(config.coinsLost),
+                "\u00a76Total coins lost: \u00a7l" + formatFloat(config.totalCoinsLost),
                 "\u00a76Total Damage taken: \u00a7c\u00a7l" + format.format(config.totalDamageTaken),
-                "\u00a76Losing \u00a7l" + format.format(config.coinLostRatio) + "\u00a76 coins per \u00a7cdamage",
+                "\u00a76Losing \u00a7l" + formatFloat(config.coinLostRatio) + "\u00a76 coins per \u00a7cdamage",
                 "\u00a76Tracking? " + (config.counterActive ? "\u00a7aACTIVE" : "\u00a7cPAUSED"));
+    }
+
+    private String formatFloat(float f) {
+        if(f % 1 == 0) {
+            return format.format(f);
+        } else {
+            return String.format("%s", f);
+        }
     }
 
     private static Splitter SPACE_SPLITTER = Splitter.on("  ").omitEmptyStrings().trimResults();
@@ -208,6 +219,16 @@ public class AlaawiiCoinsLost {
     private int lastMaxHealth = 0;
 
     private NumberFormat format = NumberFormat.getIntegerInstance();
+
+    @SubscribeEvent
+    public void onWorldLoad(WorldEvent.Load event) {
+        worldSwitchTime = System.currentTimeMillis();
+    }
+
+    @SubscribeEvent
+    public void onWorldUnload(WorldEvent.Unload event) {
+        worldSwitchTime = System.currentTimeMillis();
+    }
 
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
@@ -231,7 +252,8 @@ public class AlaawiiCoinsLost {
                     int health = Integer.parseInt(healthS);
                     int maxHealth = Integer.parseInt(maxHealthS);
 
-                    if(config.counterActive && lastMaxHealth == maxHealth && health < lastHealth) {
+                    if(System.currentTimeMillis() - worldSwitchTime > 5000 &&
+                            config.counterActive && lastMaxHealth == maxHealth && health < lastHealth) {
                         int healthLost = lastHealth - health;
                         config.totalDamageTaken += healthLost;
                         config.coinsLost += config.coinLostRatio * healthLost;
